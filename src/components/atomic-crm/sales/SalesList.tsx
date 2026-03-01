@@ -22,6 +22,7 @@ const filters = [<SearchInput source="q" alwaysOn />];
 
 const OptionsField = (_props: { label?: string | boolean }) => {
   const record = useRecordContext();
+  const translate = useTranslate();
   if (!record) return null;
   return (
     <div className="flex flex-row gap-1">

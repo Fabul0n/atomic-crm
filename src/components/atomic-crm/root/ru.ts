@@ -391,6 +391,7 @@ export const ru = {
     planned: "Запланирован",
     active: "Активен",
     completed: "Завершён",
+    feedback: "Оценка участников",
   },
 };
 

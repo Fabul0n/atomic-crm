@@ -117,8 +117,30 @@ async function fetchAndUpdateCompanyData(
   return { ...params, data: newData };
 }
 
+/** URL resource "users" maps to API/store "sales" so the app shows /users in the address bar. */
+const getApiResource = (resource: string) =>
+  resource === "users" ? "sales" : resource;
+
 const dataProviderWithCustomMethod: CrmDataProvider = {
   ...baseDataProvider,
+  getList: (resource, params) =>
+    baseDataProvider.getList(getApiResource(resource), params),
+  getOne: (resource, params) =>
+    baseDataProvider.getOne(getApiResource(resource), params),
+  getMany: (resource, params) =>
+    baseDataProvider.getMany(getApiResource(resource), params),
+  getManyReference: (resource, params) =>
+    baseDataProvider.getManyReference(getApiResource(resource), params),
+  create: (resource, params) =>
+    baseDataProvider.create(getApiResource(resource), params),
+  update: (resource, params) =>
+    baseDataProvider.update(getApiResource(resource), params),
+  updateMany: (resource, params) =>
+    baseDataProvider.updateMany(getApiResource(resource), params),
+  delete: (resource, params) =>
+    baseDataProvider.delete(getApiResource(resource), params),
+  deleteMany: (resource, params) =>
+    baseDataProvider.deleteMany(getApiResource(resource), params),
   unarchiveDeal: async (deal: Deal) => {
     // get all deals where stage is the same as the deal to unarchive
     const { data: deals } = await baseDataProvider.getList<Deal>("deals", {
@@ -519,15 +541,10 @@ export const dataProvider = withLifecycleCallbacks(
       resource: "sales",
       beforeCreate: async (params) => {
         const { data } = params;
-        // If administrator role is not set, we simply set it to false
-        if (data.administrator == null) {
-          data.administrator = false;
-        }
+        if (data.administrator == null) data.administrator = false;
         return params;
       },
       afterSave: async (data) => {
-        // Since the current user is stored in localStorage in fakerest authProvider
-        // we need to update it to keep information up to date in the UI
         const currentUser = await authProvider.getIdentity?.();
         if (currentUser?.id === data.id) {
           localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data));
@@ -603,6 +620,40 @@ export const dataProvider = withLifecycleCallbacks(
           }),
         ]);
 
+        return params;
+      },
+    } satisfies ResourceCallbacks<Sale>,
+    {
+      resource: "users",
+      beforeCreate: async (params) => {
+        const { data } = params;
+        if (data.administrator == null) data.administrator = false;
+        return params;
+      },
+      afterSave: async (data) => {
+        const currentUser = await authProvider.getIdentity?.();
+        if (currentUser?.id === data.id) {
+          localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data));
+        }
+        return data;
+      },
+      beforeDelete: async (params) => {
+        if (params.meta?.identity?.id == null) {
+          throw new Error("Identity MUST be set in meta");
+        }
+        const newSaleId = params.meta.identity.id as Identifier;
+        const [companies, contacts, contactNotes, deals] = await Promise.all([
+          dataProvider.getList("companies", { filter: { sales_id: params.id }, pagination: { page: 1, perPage: 10_000 }, sort: { field: "id", order: "ASC" } }),
+          dataProvider.getList("contacts", { filter: { sales_id: params.id }, pagination: { page: 1, perPage: 10_000 }, sort: { field: "id", order: "ASC" } }),
+          dataProvider.getList("contact_notes", { filter: { sales_id: params.id }, pagination: { page: 1, perPage: 10_000 }, sort: { field: "id", order: "ASC" } }),
+          dataProvider.getList("deals", { filter: { sales_id: params.id }, pagination: { page: 1, perPage: 10_000 }, sort: { field: "id", order: "ASC" } }),
+        ]);
+        await Promise.all([
+          dataProvider.updateMany("companies", { ids: companies.data.map((c) => c.id), data: { sales_id: newSaleId } }),
+          dataProvider.updateMany("contacts", { ids: contacts.data.map((c) => c.id), data: { sales_id: newSaleId } }),
+          dataProvider.updateMany("contact_notes", { ids: contactNotes.data.map((c) => c.id), data: { sales_id: newSaleId } }),
+          dataProvider.updateMany("deals", { ids: deals.data.map((d) => d.id), data: { sales_id: newSaleId } }),
+        ]);
         return params;
       },
     } satisfies ResourceCallbacks<Sale>,

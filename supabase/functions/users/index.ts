@@ -33,7 +33,6 @@ async function createSale(
   user_id: string,
   data: {
     email: string;
-    password: string;
     first_name: string;
     last_name: string;
     disabled: boolean;
@@ -74,10 +73,19 @@ async function inviteUser(req: Request, currentUserSale: any) {
     return createErrorResponse(401, "Not Authorized");
   }
 
+  // Password is required so the new user can log in (no email service needed)
+  if (!password || typeof password !== "string" || password.trim() === "") {
+    return createErrorResponse(
+      400,
+      "Password is required. Set a password for the new user so they can sign in with email and password.",
+    );
+  }
+
   const { data, error: userError } = await supabaseAdmin.auth.admin.createUser({
     email,
-    password,
+    password: password.trim(),
     user_metadata: { first_name, last_name },
+    email_confirm: true,
   });
 
   let user = data?.user;
@@ -116,7 +124,6 @@ async function inviteUser(req: Request, currentUserSale: any) {
 
       const sale = await createSale(user.id, {
         email,
-        password,
         first_name,
         last_name,
         disabled,
@@ -151,13 +158,7 @@ async function inviteUser(req: Request, currentUserSale: any) {
       console.error("Error inviting user: undefined user");
       return createErrorResponse(500, "Internal Server Error");
     }
-    const { error: emailError } =
-      await supabaseAdmin.auth.admin.inviteUserByEmail(email);
-
-    if (emailError) {
-      console.error(`Error inviting user, email_error=${emailError}`);
-      return createErrorResponse(500, "Failed to send invitation mail");
-    }
+    // User was created with password; no invitation email (login is email + password only)
   }
 
   try {

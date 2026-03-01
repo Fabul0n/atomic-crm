@@ -101,7 +101,7 @@ const Header = () => {
                 <RefreshButton />
                 <UserMenu>
                   <ProfileMenu />
-                  <CanAccess resource="sales" action="list">
+                  <CanAccess resource="users" action="list">
                     <UsersMenu />
                   </CanAccess>
                   <TeamsMenu />
@@ -149,7 +149,7 @@ const UsersMenu = () => {
   }
   return (
     <DropdownMenuItem asChild onClick={userMenuContext.onClose}>
-      <Link to="/sales" className="flex items-center gap-2">
+      <Link to="/users" className="flex items-center gap-2">
         <Users /> {translate("crm.nav.users")}
       </Link>
     </DropdownMenuItem>

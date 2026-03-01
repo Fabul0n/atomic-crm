@@ -1,5 +1,5 @@
 import type { FallbackProps } from "react-error-boundary";
-import { useResetErrorBoundaryOnLocationChange, Translate } from "ra-core";
+import { useResetErrorBoundaryOnLocationChange, useTranslate } from "ra-core";
 import { CircleAlert, History } from "lucide-react";
 import {
   Accordion,
@@ -20,6 +20,7 @@ import type { HtmlHTMLAttributes, ErrorInfo } from "react";
  */
 export const Error = (props: InternalErrorProps & {}) => {
   const { error, errorInfo, resetErrorBoundary, ...rest } = props;
+  const translate = useTranslate();
 
   useResetErrorBoundaryOnLocationChange(resetErrorBoundary);
 
@@ -37,10 +38,12 @@ export const Error = (props: InternalErrorProps & {}) => {
     <div className="flex flex-col items-center md:p-16 gap-5" {...rest}>
       <h1 className="flex items-center text-3xl mt-5 mb-5 gap-3" role="alert">
         <CircleAlert className="w-2em h-2em" />
-        <Translate i18nKey="ra.page.error" />
+        {translate("ra.page.error", { _: "Something went wrong" })}
       </h1>
       <div>
-        <Translate i18nKey="ra.message.error" />
+        {translate("ra.message.error", {
+          _: "An error occurred. The request could not be completed.",
+        })}
       </div>
       {process.env.NODE_ENV !== "production" && (
         <>
@@ -50,7 +53,7 @@ export const Error = (props: InternalErrorProps & {}) => {
           >
             <AccordionItem value="error">
               <AccordionTrigger className="py-2">
-                <Translate i18nKey={errorMessage}>{errorMessage}</Translate>
+                {translate(errorMessage, { _: errorMessage })}
               </AccordionTrigger>
               <AccordionContent className="whitespace-pre-wrap pt-1">
                 <pre className="text-xls">{errorInfo?.componentStack}</pre>
@@ -98,7 +101,7 @@ export const Error = (props: InternalErrorProps & {}) => {
       <div className="mt-8">
         <Button onClick={goBack}>
           <History />
-          <Translate i18nKey="ra.action.back" />
+          {translate("ra.action.back", { _: "Back" })}
         </Button>
       </div>
     </div>

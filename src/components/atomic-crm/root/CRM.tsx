@@ -257,7 +257,7 @@ const DesktopAdmin = (props: CoreAdminProps) => {
       <Resource name="contact_notes" />
       <Resource name="deal_notes" />
       <Resource name="tasks" />
-      <Resource name="sales" {...sales} />
+      <Resource name="users" {...sales} />
       <Resource name="teams" {...teams} />
       <Resource name="sprints" {...sprints} />
       <Resource name="review_360_campaigns" {...review360} />

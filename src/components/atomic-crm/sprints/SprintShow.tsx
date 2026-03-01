@@ -17,6 +17,27 @@ import { useShowContext, useDataProvider } from "ra-core";
 import type { CrmDataProvider } from "../providers/types";
 import type { Sprint, SprintParticipant } from "../types";
 
+const SprintFeedbackEmbed = () => {
+  const translate = useTranslate();
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{translate("crm.feedback", { _: "Оценка участников" })}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <iframe
+          src="https://kudos-crate.lovable.app/embed/cta-button?label=%D0%9F%D0%B5%D1%80%D0%B5%D0%B9%D1%82%D0%B8%20%D0%B2%20%D0%9C%D0%98%D0%A0%D0%A3&target=%2F&theme=light&size=m&style=primary&newTab=true"
+          width="100%"
+          height="120"
+          style={{ border: "none", borderRadius: 12, maxWidth: 400 }}
+          loading="lazy"
+          allow="clipboard-write"
+        />
+      </CardContent>
+    </Card>
+  );
+};
+
 const SprintParticipantsTable = () => {
   const { record } = useShowContext<Sprint>();
   const dataProvider = useDataProvider<CrmDataProvider>();
@@ -142,6 +163,7 @@ export const SprintShow = () => (
     <div className="flex flex-col gap-4">
       <SprintDetails />
       <SprintParticipantsTable />
+      <SprintFeedbackEmbed />
     </div>
   </Show>
 );

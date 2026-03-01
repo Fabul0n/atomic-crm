@@ -1,4 +1,10 @@
-import { email, required, useGetIdentity, useRecordContext } from "ra-core";
+import {
+  email,
+  required,
+  useGetIdentity,
+  useRecordContext,
+  useTranslate,
+} from "ra-core";
 import { BooleanInput } from "@/components/admin/boolean-input";
 import { TextInput } from "@/components/admin/text-input";
 
@@ -7,6 +13,9 @@ import type { Sale } from "../types";
 export function SalesInputs() {
   const { identity } = useGetIdentity();
   const record = useRecordContext<Sale>();
+  const translate = useTranslate();
+  const isCreate = record == null;
+
   return (
     <div className="space-y-4 w-full">
       <TextInput source="first_name" validate={required()} helperText={false} />
@@ -16,6 +25,28 @@ export function SalesInputs() {
         validate={[required(), email()]}
         helperText={false}
       />
+      {isCreate && (
+        <>
+          <TextInput
+            source="password"
+            type="password"
+            autoComplete="new-password"
+            validate={required()}
+            helperText={false}
+            label={translate("ra.auth.password", { _: "Password" })}
+          />
+          <TextInput
+            source="confirm_password"
+            type="password"
+            autoComplete="new-password"
+            validate={required()}
+            helperText={false}
+            label={translate("ra.auth.confirm_password", {
+              _: "Confirm password",
+            })}
+          />
+        </>
+      )}
       <BooleanInput
         source="administrator"
         readOnly={record?.id === identity?.id}

@@ -57,27 +57,54 @@ const processCompanyLogo = async (params: any) => {
   };
 };
 
+/** URL resource "users" maps to API/table "sales" so the app shows /users in the address bar. */
+const getApiResource = (resource: string) =>
+  resource === "users" ? "sales" : resource;
+
 const dataProviderWithCustomMethods = {
   ...baseDataProvider,
   async getList(resource: string, params: GetListParams) {
-    if (resource === "companies") {
-      return baseDataProvider.getList("companies_summary", params);
-    }
-    if (resource === "contacts") {
-      return baseDataProvider.getList("contacts_summary", params);
-    }
-
-    return baseDataProvider.getList(resource, params);
+    const apiResource =
+      resource === "users"
+        ? "sales"
+        : resource === "companies"
+          ? "companies_summary"
+          : resource === "contacts"
+            ? "contacts_summary"
+            : resource;
+    return baseDataProvider.getList(apiResource, params);
   },
   async getOne(resource: string, params: any) {
-    if (resource === "companies") {
-      return baseDataProvider.getOne("companies_summary", params);
-    }
-    if (resource === "contacts") {
-      return baseDataProvider.getOne("contacts_summary", params);
-    }
-
-    return baseDataProvider.getOne(resource, params);
+    const apiResource =
+      resource === "users"
+        ? "sales"
+        : resource === "companies"
+          ? "companies_summary"
+          : resource === "contacts"
+            ? "contacts_summary"
+            : resource;
+    return baseDataProvider.getOne(apiResource, params);
+  },
+  async getMany(resource: string, params: any) {
+    return baseDataProvider.getMany(getApiResource(resource), params);
+  },
+  async getManyReference(resource: string, params: any) {
+    return baseDataProvider.getManyReference(getApiResource(resource), params);
+  },
+  async create(resource: string, params: any) {
+    return baseDataProvider.create(getApiResource(resource), params);
+  },
+  async update(resource: string, params: any) {
+    return baseDataProvider.update(getApiResource(resource), params);
+  },
+  async updateMany(resource: string, params: any) {
+    return baseDataProvider.updateMany(getApiResource(resource), params);
+  },
+  async delete(resource: string, params: any) {
+    return baseDataProvider.delete(getApiResource(resource), params);
+  },
+  async deleteMany(resource: string, params: any) {
+    return baseDataProvider.deleteMany(getApiResource(resource), params);
   },
 
   async signUp({ email, password, first_name, last_name }: SignUpData) {
@@ -464,6 +491,15 @@ const lifeCycleCallbacks: ResourceCallbacks[] = [
   },
   {
     resource: "sales",
+    beforeSave: async (data: Sale, _, __) => {
+      if (data.avatar) {
+        await uploadToBucket(data.avatar);
+      }
+      return data;
+    },
+  },
+  {
+    resource: "users",
     beforeSave: async (data: Sale, _, __) => {
       if (data.avatar) {
         await uploadToBucket(data.avatar);

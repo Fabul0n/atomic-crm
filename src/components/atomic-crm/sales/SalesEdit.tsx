@@ -42,7 +42,7 @@ export function SalesEdit() {
       return dataProvider.salesUpdate(record.id, data);
     },
     onSuccess: () => {
-      redirect("/sales");
+      redirect("/users");
       notify(translate("crm.user_updated"));
     },
     onError: () => {
