@@ -275,3 +275,65 @@ export interface ContactGender {
   label: string;
   icon: ComponentType<{ className?: string }>;
 }
+
+// --- Feedback & Reviews ---
+
+export type TaskFeedback = {
+  task_id: Identifier;
+  reviewer_sales_id: Identifier;
+  reviewee_sales_id: Identifier;
+  sprint_id?: Identifier | null;
+  content: string;
+  sales_id?: Identifier | null;
+  created_at: string;
+} & Pick<RaRecord, "id">;
+
+export type Review180 = {
+  reviewee_sales_id: Identifier;
+  reviewer_sales_id: Identifier;
+  free_text: string;
+  good_points: string[];
+  bad_points: string[];
+  sales_id?: Identifier | null;
+  created_at: string;
+} & Pick<RaRecord, "id">;
+
+export type Review360CampaignStatus = "draft" | "published";
+
+export type Review360Campaign = {
+  name: string;
+  year: number;
+  status: Review360CampaignStatus;
+  created_by_sales_id?: Identifier | null;
+  published_at?: string | null;
+  sales_id?: Identifier | null;
+  created_at: string;
+} & Pick<RaRecord, "id">;
+
+export type Review360AssignmentStatus = "pending" | "submitted";
+
+export type Review360Assignment = {
+  campaign_id: Identifier;
+  reviewer_sales_id: Identifier;
+  reviewee_sales_id: Identifier;
+  status: Review360AssignmentStatus;
+  sales_id?: Identifier | null;
+  created_at: string;
+} & Pick<RaRecord, "id">;
+
+export type Review360AnswerItem = { question_id: string; value: string };
+
+export type Review360Answer = {
+  assignment_id: Identifier;
+  reviewee_sales_id: Identifier;
+  answers: Review360AnswerItem[];
+  submitted_at: string;
+} & Pick<RaRecord, "id">;
+
+/** Контекст для формы отзыва по задаче (заполняется из CRM для виджета/ссылки) */
+export type TaskFeedbackContext = {
+  task: { id: Identifier; text: string; due_date: string; type?: string };
+  reviewee: { id: Identifier; first_name: string; last_name: string; email?: string };
+  sprint?: { id: Identifier; name: string; start_date: string; end_date: string } | null;
+  contact?: { id: Identifier; first_name: string; last_name: string } | null;
+};

@@ -14,10 +14,13 @@ import type {
   ContactNote,
   Deal,
   DealNote,
+  Review180,
+  Review360AnswerItem,
   Sale,
   SalesFormData,
   SignUpData,
   SprintParticipant,
+  TaskFeedbackContext,
   Team,
   TeamMember,
   Task,
@@ -336,6 +339,128 @@ const dataProviderWithCustomMethod: CrmDataProvider = {
     return Array.from(participantsBySalesId.values()).sort((a, b) =>
       `${a.last_name} ${a.first_name}`.localeCompare(`${b.last_name} ${b.first_name}`),
     );
+  },
+  getTaskFeedbackContext: async (taskId: Identifier): Promise<TaskFeedbackContext | null> => {
+    const { data: task } = await dataProvider.getOne<Task & { contact_id?: Identifier; sales_id?: Identifier }>("tasks", { id: taskId });
+    if (!task) return null;
+    const revieweeId = task.sales_id;
+    const [contact, reviewee] = await Promise.all([
+      task.contact_id ? dataProvider.getOne<Contact>("contacts_summary", { id: task.contact_id }).then((r) => r.data) : null,
+      revieweeId ? dataProvider.getOne<Sale>("sales", { id: revieweeId }).then((r) => r.data) : null,
+    ]);
+    return {
+      task: { id: task.id, text: task.text ?? "", due_date: task.due_date ?? "", type: task.type ?? "" },
+      reviewee: reviewee
+        ? { id: reviewee.id, first_name: reviewee.first_name ?? "", last_name: reviewee.last_name ?? "", email: reviewee.email ?? "" }
+        : { id: revieweeId!, first_name: "", last_name: "", email: "" },
+      sprint: null,
+      contact: contact ? { id: contact.id, first_name: contact.first_name ?? "", last_name: contact.last_name ?? "" } : null,
+    };
+  },
+  submitTaskFeedback: async (params: { task_id: Identifier; reviewee_sales_id: Identifier; content: string; sprint_id?: Identifier | null }) => {
+    const identity = await authProvider.getIdentity?.();
+    const reviewerId = identity?.id as Identifier;
+    if (!reviewerId) throw new Error("Not authenticated");
+    await dataProvider.create("task_feedbacks", {
+      data: {
+        task_id: params.task_id,
+        reviewer_sales_id: reviewerId,
+        reviewee_sales_id: params.reviewee_sales_id,
+        content: params.content,
+        sprint_id: params.sprint_id ?? null,
+      },
+    });
+    return { ok: true };
+  },
+  createReview180: async (data: Omit<Review180, "id" | "created_at">) => {
+    const identity = await authProvider.getIdentity?.();
+    const reviewerId = (identity?.id ?? data.reviewer_sales_id) as Identifier;
+    const res = await dataProvider.create("reviews_180", {
+      data: {
+        reviewee_sales_id: data.reviewee_sales_id,
+        reviewer_sales_id: reviewerId,
+        free_text: data.free_text,
+        good_points: data.good_points ?? [],
+        bad_points: data.bad_points ?? [],
+      },
+    });
+    return { id: res.data.id };
+  },
+  getReviews180ForReviewee: async (salesId: Identifier) => {
+    const { data } = await dataProvider.getList<Review180>("reviews_180", {
+      filter: { reviewee_sales_id: salesId },
+      sort: { field: "created_at", order: "DESC" },
+      pagination: { page: 1, perPage: 100 },
+    });
+    return data ?? [];
+  },
+  publishReview360Campaign: async (campaignId: Identifier) => {
+    const { data: campaign } = await dataProvider.getOne("review_360_campaigns", { id: campaignId });
+    await dataProvider.update("review_360_campaigns", {
+      id: campaignId,
+      data: { ...campaign, status: "published", published_at: new Date().toISOString() },
+      previousData: campaign,
+    });
+    const { data: salesList } = await dataProvider.getList<Sale>("sales", { filter: {}, pagination: { page: 1, perPage: 500 }, sort: { field: "id", order: "ASC" } });
+    const ids = (salesList ?? []).map((s) => s.id).filter(Boolean);
+    for (const revieweeId of ids) {
+      const others = ids.filter((id) => id !== revieweeId);
+      const shuffled = others.slice().sort(() => Math.random() - 0.5);
+      const reviewers = shuffled.slice(0, Math.min(3, shuffled.length));
+      for (const reviewerId of reviewers) {
+        await dataProvider.create("review_360_assignments", {
+          data: { campaign_id: campaignId, reviewer_sales_id: reviewerId, reviewee_sales_id: revieweeId, status: "pending" },
+        });
+      }
+    }
+    return { ok: true };
+  },
+  getMy360Assignments: async (campaignId: Identifier) => {
+    const identity = await authProvider.getIdentity?.();
+    if (!identity?.id) return { data: [], total: 0 };
+    const { data } = await dataProvider.getList("review_360_assignments", {
+      filter: { campaign_id: campaignId, reviewer_sales_id: identity.id },
+      pagination: { page: 1, perPage: 100 },
+      sort: { field: "reviewee_sales_id", order: "ASC" },
+    });
+    const list = (data ?? []) as Array<{ id: number; reviewee_sales_id: number; reviewer_sales_id: number; status: string }>;
+    const withReviewee = await Promise.all(
+      list.map(async (a) => {
+        const { data: rev } = await dataProvider.getOne<Sale>("sales", { id: a.reviewee_sales_id });
+        return { ...a, reviewee: rev };
+      }),
+    );
+    return { data: withReviewee, total: withReviewee.length };
+  },
+  submitReview360Answer: async (assignmentId: Identifier, answers: Review360AnswerItem[]) => {
+    const { data: assignment } = await dataProvider.getOne<{ reviewee_sales_id: Identifier }>("review_360_assignments", { id: assignmentId });
+    if (!assignment) throw new Error("Assignment not found");
+    const existing = await dataProvider.getList("review_360_answers", { filter: { assignment_id: assignmentId }, pagination: { page: 1, perPage: 1 } });
+    const payload = { assignment_id: assignmentId, reviewee_sales_id: assignment.reviewee_sales_id, answers, submitted_at: new Date().toISOString() };
+    if (existing.data?.length) {
+      await dataProvider.update("review_360_answers", { id: existing.data[0].id, data: payload, previousData: existing.data[0] });
+    } else {
+      await dataProvider.create("review_360_answers", { data: payload });
+    }
+    await dataProvider.update("review_360_assignments", {
+      id: assignmentId,
+      data: { status: "submitted" },
+      previousData: await dataProvider.getOne("review_360_assignments", { id: assignmentId }).then((r) => r.data),
+    });
+    return { ok: true };
+  },
+  getReview360ResultsForReviewee: async (campaignId: Identifier, revieweeSalesId: Identifier) => {
+    const { data: assignments } = await dataProvider.getList("review_360_assignments", {
+      filter: { campaign_id: campaignId, reviewee_sales_id: revieweeSalesId },
+      pagination: { page: 1, perPage: 100 },
+    });
+    const withAnswers = await Promise.all(
+      (assignments ?? []).map(async (a: { id: number; reviewer_sales_id: number; status: string }) => {
+        const ans = await dataProvider.getList("review_360_answers", { filter: { assignment_id: a.id }, pagination: { page: 1, perPage: 1 } });
+        return { ...a, review_360_answers: ans.data ?? [] };
+      }),
+    );
+    return withAnswers as Array<{ id: number; reviewer_sales_id: number; status: string; review_360_answers: { answers: Review360AnswerItem[]; submitted_at: string }[] }>;
   },
 };
 

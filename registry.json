@@ -36,6 +36,30 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/atomic-crm/teams/index.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/teams/TeamsList.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/teams/TeamsEdit.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/teams/TeamsCreate.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/teams/TeamShow.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/teams/TeamInputs.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/atomic-crm/tasks/taskFilters.ts",
           "type": "registry:component"
         },
@@ -100,6 +124,30 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/atomic-crm/sprints/index.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/sprints/SprintsList.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/sprints/SprintsEdit.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/sprints/SprintsCreate.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/sprints/SprintShow.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/sprints/SprintInputs.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/atomic-crm/simple-list/SimpleListLoading.tsx",
           "type": "registry:component"
         },
@@ -132,6 +180,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/atomic-crm/sales/SalesShow.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/atomic-crm/sales/SalesList.tsx",
           "type": "registry:component"
         },
@@ -156,6 +208,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/atomic-crm/root/ru.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/atomic-crm/root/i18nProvider.tsx",
           "type": "registry:component"
         },
@@ -169,6 +225,34 @@
         },
         {
           "path": "src/components/atomic-crm/root/CRM.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/review360/index.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/review360/constants.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/review360/Review360ResultsPage.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/review360/Review360CampaignsList.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/review360/Review360CampaignsEdit.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/review360/Review360CampaignsCreate.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/review360/My360FeedbackPage.tsx",
           "type": "registry:component"
         },
         {
@@ -236,11 +320,19 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/atomic-crm/providers/fakerest/dataGenerator/teams.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/atomic-crm/providers/fakerest/dataGenerator/tasks.ts",
           "type": "registry:component"
         },
         {
           "path": "src/components/atomic-crm/providers/fakerest/dataGenerator/tags.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/providers/fakerest/dataGenerator/sprints.ts",
           "type": "registry:component"
         },
         {
@@ -489,6 +581,14 @@
         },
         {
           "path": "src/components/atomic-crm/filters/FilterCategory.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/feedback/TaskFeedbackPage.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/feedback/Review180Dialog.tsx",
           "type": "registry:component"
         },
         {

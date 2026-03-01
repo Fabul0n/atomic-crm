@@ -1,6 +1,7 @@
 import { Flag, Import, Settings, User, Users, UsersRound } from "lucide-react";
-import { CanAccess, useUserMenu } from "ra-core";
+import { CanAccess, useTranslate, useUserMenu } from "ra-core";
 import { Link, matchPath, useLocation } from "react-router";
+import { LocalesMenuButton } from "@/components/admin/locales-menu-button";
 import { RefreshButton } from "@/components/admin/refresh-button";
 import { ThemeModeToggle } from "@/components/admin/theme-mode-toggle";
 import { UserMenu } from "@/components/admin/user-menu";
@@ -12,6 +13,7 @@ import { ImportPage } from "../misc/ImportPage";
 const Header = () => {
   const { darkModeLogo, lightModeLogo, title } = useConfigurationContext();
   const location = useLocation();
+  const translate = useTranslate();
 
   let currentPath: string | boolean = "/";
   if (matchPath("/", location.pathname)) {
@@ -26,6 +28,8 @@ const Header = () => {
     currentPath = "/teams";
   } else if (matchPath("/sprints/*", location.pathname)) {
     currentPath = "/sprints";
+  } else if (matchPath("/review_360_campaigns/*", location.pathname) || matchPath("/review_360/*", location.pathname)) {
+    currentPath = "/review_360_campaigns";
   } else {
     currentPath = false;
   }
@@ -55,38 +59,44 @@ const Header = () => {
               <div>
                 <nav className="flex">
                   <NavigationTab
-                    label="Dashboard"
+                    label={translate("crm.nav.dashboard")}
                     to="/"
                     isActive={currentPath === "/"}
                   />
                   <NavigationTab
-                    label="Contacts"
+                    label={translate("crm.nav.contacts")}
                     to="/contacts"
                     isActive={currentPath === "/contacts"}
                   />
                   <NavigationTab
-                    label="Companies"
+                    label={translate("crm.nav.companies")}
                     to="/companies"
                     isActive={currentPath === "/companies"}
                   />
                   <NavigationTab
-                    label="Deals"
+                    label={translate("crm.nav.deals")}
                     to="/deals"
                     isActive={currentPath === "/deals"}
                   />
                   <NavigationTab
-                    label="Teams"
+                    label={translate("crm.nav.teams")}
                     to="/teams"
                     isActive={currentPath === "/teams"}
                   />
                   <NavigationTab
-                    label="Sprints"
+                    label={translate("crm.nav.sprints")}
                     to="/sprints"
                     isActive={currentPath === "/sprints"}
+                  />
+                  <NavigationTab
+                    label={translate("crm.nav.review_360")}
+                    to="/review_360_campaigns"
+                    isActive={currentPath === "/review_360_campaigns"}
                   />
                 </nav>
               </div>
               <div className="flex items-center">
+                <LocalesMenuButton />
                 <ThemeModeToggle />
                 <RefreshButton />
                 <UserMenu>
@@ -132,6 +142,7 @@ const NavigationTab = ({
 );
 
 const UsersMenu = () => {
+  const translate = useTranslate();
   const userMenuContext = useUserMenu();
   if (!userMenuContext) {
     throw new Error("<UsersMenu> must be used inside <UserMenu?");
@@ -139,13 +150,14 @@ const UsersMenu = () => {
   return (
     <DropdownMenuItem asChild onClick={userMenuContext.onClose}>
       <Link to="/sales" className="flex items-center gap-2">
-        <Users /> Users
+        <Users /> {translate("crm.nav.users")}
       </Link>
     </DropdownMenuItem>
   );
 };
 
 const TeamsMenu = () => {
+  const translate = useTranslate();
   const userMenuContext = useUserMenu();
   if (!userMenuContext) {
     throw new Error("<TeamsMenu> must be used inside <UserMenu>");
@@ -153,13 +165,14 @@ const TeamsMenu = () => {
   return (
     <DropdownMenuItem asChild onClick={userMenuContext.onClose}>
       <Link to="/teams" className="flex items-center gap-2">
-        <UsersRound /> Teams
+        <UsersRound /> {translate("crm.nav.teams")}
       </Link>
     </DropdownMenuItem>
   );
 };
 
 const SprintsMenu = () => {
+  const translate = useTranslate();
   const userMenuContext = useUserMenu();
   if (!userMenuContext) {
     throw new Error("<SprintsMenu> must be used inside <UserMenu>");
@@ -167,13 +180,14 @@ const SprintsMenu = () => {
   return (
     <DropdownMenuItem asChild onClick={userMenuContext.onClose}>
       <Link to="/sprints" className="flex items-center gap-2">
-        <Flag /> Sprints
+        <Flag /> {translate("crm.nav.sprints")}
       </Link>
     </DropdownMenuItem>
   );
 };
 
 const ProfileMenu = () => {
+  const translate = useTranslate();
   const userMenuContext = useUserMenu();
   if (!userMenuContext) {
     throw new Error("<ProfileMenu> must be used inside <UserMenu?");
@@ -182,13 +196,14 @@ const ProfileMenu = () => {
     <DropdownMenuItem asChild onClick={userMenuContext.onClose}>
       <Link to="/profile" className="flex items-center gap-2">
         <User />
-        Profile
+        {translate("crm.nav.profile")}
       </Link>
     </DropdownMenuItem>
   );
 };
 
 const SettingsMenu = () => {
+  const translate = useTranslate();
   const userMenuContext = useUserMenu();
   if (!userMenuContext) {
     throw new Error("<SettingsMenu> must be used inside <UserMenu>");
@@ -196,13 +211,14 @@ const SettingsMenu = () => {
   return (
     <DropdownMenuItem asChild onClick={userMenuContext.onClose}>
       <Link to="/settings" className="flex items-center gap-2">
-        <Settings /> Settings
+        <Settings /> {translate("crm.nav.settings")}
       </Link>
     </DropdownMenuItem>
   );
 };
 
 const ImportFromJsonMenuItem = () => {
+  const translate = useTranslate();
   const userMenuContext = useUserMenu();
   if (!userMenuContext) {
     throw new Error("<ImportFromJsonMenuItem> must be used inside <UserMenu>");
@@ -210,7 +226,7 @@ const ImportFromJsonMenuItem = () => {
   return (
     <DropdownMenuItem asChild onClick={userMenuContext.onClose}>
       <Link to={ImportPage.path} className="flex items-center gap-2">
-        <Import /> Import data
+        <Import /> {translate("crm.nav.import_data")}
       </Link>
     </DropdownMenuItem>
   );

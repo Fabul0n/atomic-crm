@@ -23,6 +23,11 @@ export default (): Db => {
   db.deals = generateDeals(db);
   db.deal_notes = generateDealNotes(db);
   db.tasks = generateTasks(db);
+  db.task_feedbacks = [];
+  db.reviews_180 = [];
+  db.review_360_campaigns = [];
+  db.review_360_assignments = [];
+  db.review_360_answers = [];
   db.configuration = [
     {
       id: 1,

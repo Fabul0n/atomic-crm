@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { EditButton, Show } from "@/components/admin";
+import { useTranslate } from "ra-core";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -18,6 +19,7 @@ import type { Team, TeamMember } from "../types";
 const TeamMembersTable = () => {
   const { record } = useShowContext<Team>();
   const dataProvider = useDataProvider<CrmDataProvider>();
+  const translate = useTranslate();
   const { data: members, isPending, error } = useQuery({
     queryKey: ["teamMembers", record?.id],
     queryFn: () => dataProvider.getTeamMembers(record!.id),
@@ -29,7 +31,7 @@ const TeamMembersTable = () => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Members</CardTitle>
+          <CardTitle>{translate("crm.members")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Skeleton className="h-32 w-full" />
@@ -41,13 +43,13 @@ const TeamMembersTable = () => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Members</CardTitle>
+          <CardTitle>{translate("crm.members")}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground text-sm">
             {members?.length === 0
-              ? "No members in this team."
-              : "Failed to load members."}
+              ? translate("crm.no_members")
+              : translate("crm.failed_to_load_members")}
           </p>
         </CardContent>
       </Card>
@@ -57,13 +59,13 @@ const TeamMembersTable = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Members ({members.length})</CardTitle>
+        <CardTitle>{translate("crm.members")} ({members.length})</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
+              <TableHead>{translate("crm.name")}</TableHead>
               <TableHead>Email</TableHead>
             </TableRow>
           </TableHeader>
@@ -85,19 +87,20 @@ const TeamMembersTable = () => {
 
 const TeamDetails = () => {
   const { record } = useShowContext<Team>();
+  const translate = useTranslate();
   if (!record) return null;
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Details</CardTitle>
+        <CardTitle>{translate("crm.details")}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
         <div>
-          <span className="text-muted-foreground text-sm">Name</span>
+          <span className="text-muted-foreground text-sm">{translate("crm.name")}</span>
           <p className="font-medium">{record.name}</p>
         </div>
         <div>
-          <span className="text-muted-foreground text-sm">Description</span>
+          <span className="text-muted-foreground text-sm">{translate("crm.description")}</span>
           {record.description ? (
             <p className="text-sm whitespace-pre-wrap">{record.description}</p>
           ) : (

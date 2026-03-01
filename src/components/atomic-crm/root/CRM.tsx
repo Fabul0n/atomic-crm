@@ -31,6 +31,9 @@ import {
 } from "../providers/supabase";
 import sales from "../sales";
 import sprints from "../sprints";
+import review360 from "../review360";
+import { My360FeedbackPage } from "../review360/My360FeedbackPage";
+import { Review360ResultsPage } from "../review360/Review360ResultsPage";
 import { ProfilePage } from "../settings/ProfilePage";
 import { SettingsPage } from "../settings/SettingsPage";
 import teams from "../teams";
@@ -58,6 +61,7 @@ import { ContactListMobile } from "../contacts/ContactList.tsx";
 import { ContactShow } from "../contacts/ContactShow.tsx";
 import { CompanyShow } from "../companies/CompanyShow.tsx";
 import { NoteShowPage } from "../notes/NoteShowPage.tsx";
+import { TaskFeedbackPage } from "../feedback/TaskFeedbackPage.tsx";
 
 const defaultStore = localStorageStore(undefined, "CRM");
 
@@ -243,6 +247,9 @@ const DesktopAdmin = (props: CoreAdminProps) => {
         <Route path={ProfilePage.path} element={<ProfilePage />} />
         <Route path={SettingsPage.path} element={<SettingsPage />} />
         <Route path={ImportPage.path} element={<ImportPage />} />
+        <Route path="/feedback/task/:taskId" element={<TaskFeedbackPage />} />
+        <Route path="/review_360/:campaignId/my-feedback" element={<My360FeedbackPage />} />
+        <Route path="/review_360/:campaignId/results" element={<Review360ResultsPage />} />
       </CustomRoutes>
       <Resource name="deals" {...deals} />
       <Resource name="contacts" {...contacts} />
@@ -253,6 +260,7 @@ const DesktopAdmin = (props: CoreAdminProps) => {
       <Resource name="sales" {...sales} />
       <Resource name="teams" {...teams} />
       <Resource name="sprints" {...sprints} />
+      <Resource name="review_360_campaigns" {...review360} />
       <Resource name="tags" />
     </Admin>
   );
@@ -297,6 +305,9 @@ const MobileAdmin = (props: CoreAdminProps) => {
             element={<ForgotPasswordPage />}
           />
           <Route path={OAuthConsentPage.path} element={<OAuthConsentPage />} />
+        </CustomRoutes>
+        <CustomRoutes>
+          <Route path="/feedback/task/:taskId" element={<TaskFeedbackPage />} />
         </CustomRoutes>
         <Resource
           name="contacts"

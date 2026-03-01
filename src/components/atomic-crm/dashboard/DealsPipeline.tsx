@@ -1,5 +1,5 @@
 import { DollarSign } from "lucide-react";
-import { useGetIdentity, useGetList } from "ra-core";
+import { useGetIdentity, useGetList, useTranslate } from "ra-core";
 import { Link } from "react-router";
 import { ReferenceField } from "@/components/admin/reference-field";
 import { Card } from "@/components/ui/card";
@@ -16,6 +16,7 @@ import type { Deal } from "../types";
  */
 export const DealsPipeline = () => {
   const { identity } = useGetIdentity();
+  const translate = useTranslate();
   const { dealStages, dealPipelineStatuses } = useConfigurationContext();
   const { data, total, isPending } = useGetList<Deal>(
     "deals",
@@ -52,7 +53,7 @@ export const DealsPipeline = () => {
           className="text-xl font-semibold text-muted-foreground hover:underline"
           to="/deals"
         >
-          Deals Pipeline
+          {translate("crm.deals_pipeline")}
         </Link>
       </div>
       <Card>

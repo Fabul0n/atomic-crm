@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { EditButton, Show } from "@/components/admin";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslate } from "ra-core";
 import {
   Table,
   TableBody,
@@ -19,6 +20,7 @@ import type { Sprint, SprintParticipant } from "../types";
 const SprintParticipantsTable = () => {
   const { record } = useShowContext<Sprint>();
   const dataProvider = useDataProvider<CrmDataProvider>();
+  const translate = useTranslate();
   const { data: participants, isPending, error } = useQuery({
     queryKey: ["sprintParticipants", record?.id],
     queryFn: () => dataProvider.getSprintParticipants(record!.id),
@@ -30,7 +32,7 @@ const SprintParticipantsTable = () => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Participants</CardTitle>
+          <CardTitle>{translate("crm.participants")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Skeleton className="h-32 w-full" />
@@ -42,13 +44,13 @@ const SprintParticipantsTable = () => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Participants</CardTitle>
+          <CardTitle>{translate("crm.participants")}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground text-sm">
             {participants?.length === 0
-              ? "No participants in this sprint."
-              : "Failed to load participants."}
+              ? translate("crm.no_participants")
+              : translate("crm.failed_to_load_participants")}
           </p>
         </CardContent>
       </Card>
@@ -58,15 +60,15 @@ const SprintParticipantsTable = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Participants ({participants.length})</CardTitle>
+        <CardTitle>{translate("crm.participants")} ({participants.length})</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
+              <TableHead>{translate("crm.name")}</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Source</TableHead>
+              <TableHead>{translate("crm.source")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -78,10 +80,10 @@ const SprintParticipantsTable = () => {
                 <TableCell>{p.email}</TableCell>
                 <TableCell>
                   {p.source_type === "direct" ? (
-                    <Badge variant="secondary">Direct</Badge>
+                    <Badge variant="secondary">{translate("crm.direct")}</Badge>
                   ) : (
                     <Badge variant="outline">
-                      Team: {p.source_team_name ?? p.source_team_id}
+                      {translate("crm.team")}: {p.source_team_name ?? p.source_team_id}
                     </Badge>
                   )}
                 </TableCell>
@@ -96,19 +98,20 @@ const SprintParticipantsTable = () => {
 
 const SprintDetails = () => {
   const { record } = useShowContext<Sprint>();
+  const translate = useTranslate();
   if (!record) return null;
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Details</CardTitle>
+        <CardTitle>{translate("crm.details")}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
         <div>
-          <span className="text-muted-foreground text-sm">Name</span>
+          <span className="text-muted-foreground text-sm">{translate("crm.name")}</span>
           <p className="font-medium">{record.name}</p>
         </div>
         <div>
-          <span className="text-muted-foreground text-sm">Goal</span>
+          <span className="text-muted-foreground text-sm">{translate("crm.goal")}</span>
           {record.goal ? (
             <p className="text-sm whitespace-pre-wrap">{record.goal}</p>
           ) : (
@@ -116,16 +119,16 @@ const SprintDetails = () => {
           )}
         </div>
         <div>
-          <span className="text-muted-foreground text-sm">Status</span>
-          <p className="font-medium capitalize">{record.status}</p>
+          <span className="text-muted-foreground text-sm">{translate("crm.status")}</span>
+          <p className="font-medium">{translate(`crm.${record.status}`)}</p>
         </div>
         <div className="flex gap-4">
           <div>
-            <span className="text-muted-foreground text-sm">Start date</span>
+            <span className="text-muted-foreground text-sm">{translate("crm.start_date")}</span>
             <p className="font-medium">{record.start_date}</p>
           </div>
           <div>
-            <span className="text-muted-foreground text-sm">End date</span>
+            <span className="text-muted-foreground text-sm">{translate("crm.end_date")}</span>
             <p className="font-medium">{record.end_date}</p>
           </div>
         </div>

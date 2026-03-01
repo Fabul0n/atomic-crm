@@ -3,6 +3,8 @@ import polyglotI18nProvider from "ra-i18n-polyglot";
 import englishMessages from "ra-language-english";
 import { raSupabaseEnglishMessages } from "ra-supabase-language-english";
 
+import { ru } from "./ru";
+
 const raSupabaseEnglishMessagesOverride = {
   "ra-supabase": {
     auth: {
@@ -11,15 +13,23 @@ const raSupabaseEnglishMessagesOverride = {
   },
 };
 
+const english = mergeTranslations(
+  englishMessages,
+  raSupabaseEnglishMessages,
+  raSupabaseEnglishMessagesOverride,
+);
+
 export const i18nProvider = polyglotI18nProvider(
-  () => {
-    return mergeTranslations(
-      englishMessages,
-      raSupabaseEnglishMessages,
-      raSupabaseEnglishMessagesOverride,
-    );
+  (locale: string) => {
+    if (locale === "ru") {
+      return mergeTranslations(english, ru);
+    }
+    return english;
   },
-  "en",
-  [{ locale: "en", name: "English" }],
+  "ru",
+  [
+    { locale: "ru", name: "Русский" },
+    { locale: "en", name: "English" },
+  ],
   { allowMissing: true },
 );
