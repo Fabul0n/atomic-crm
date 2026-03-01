@@ -5,7 +5,9 @@ import type {
   Deal,
   DealNote,
   Sale,
+  Sprint,
   Tag,
+  Team,
   Task,
 } from "../../../types";
 import type { ConfigurationContextValue } from "../../../root/ConfigurationContext";
@@ -17,6 +19,8 @@ export interface Db {
   deals: Deal[];
   deal_notes: DealNote[];
   sales: Sale[];
+  teams: Team[];
+  sprints: Sprint[];
   tags: Tag[];
   tasks: Task[];
   configuration: Array<{ id: number; config: ConfigurationContextValue }>;

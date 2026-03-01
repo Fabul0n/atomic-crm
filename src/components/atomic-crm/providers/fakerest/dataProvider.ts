@@ -17,6 +17,9 @@ import type {
   Sale,
   SalesFormData,
   SignUpData,
+  SprintParticipant,
+  Team,
+  TeamMember,
   Task,
 } from "../../types";
 import type { ConfigurationContextValue } from "../../root/ConfigurationContext";
@@ -243,6 +246,96 @@ const dataProviderWithCustomMethod: CrmDataProvider = {
       previousData: prev,
     });
     return config;
+  },
+  getTeamMembers: async (teamId: Identifier): Promise<TeamMember[]> => {
+    const { data: team } = await dataProvider.getOne<Team>("teams", {
+      id: teamId,
+    });
+    const memberIds = team?.member_ids ?? [];
+    if (memberIds.length === 0) {
+      return [];
+    }
+
+    const salesMembers = await Promise.all(
+      memberIds.map(async (salesId) => {
+        const { data } = await dataProvider.getOne<Sale>("sales", { id: salesId });
+        return data;
+      }),
+    );
+
+    return salesMembers.map((sale) => ({
+      id: `${teamId}-${sale.id}`,
+      team_id: teamId,
+      sales_id: sale.id,
+      first_name: sale.first_name,
+      last_name: sale.last_name,
+      email: sale.email,
+      avatar: sale.avatar,
+      administrator: sale.administrator,
+      disabled: sale.disabled ?? false,
+    }));
+  },
+  getSprintParticipants: async (
+    sprintId: Identifier,
+  ): Promise<SprintParticipant[]> => {
+    const { data: sprint } = await dataProvider.getOne<{
+      id: Identifier;
+      member_ids?: Identifier[];
+      team_ids?: Identifier[];
+    }>("sprints", { id: sprintId });
+
+    const directMemberIds = sprint?.member_ids ?? [];
+    const teamIds = sprint?.team_ids ?? [];
+    const participantsBySalesId = new Map<Identifier, SprintParticipant>();
+
+    for (const salesId of directMemberIds) {
+      const { data: sale } = await dataProvider.getOne<Sale>("sales", { id: salesId });
+      participantsBySalesId.set(sale.id, {
+        id: `${sprintId}-${sale.id}`,
+        sprint_id: sprintId,
+        sales_id: sale.id,
+        first_name: sale.first_name,
+        last_name: sale.last_name,
+        email: sale.email,
+        avatar: sale.avatar,
+        administrator: sale.administrator,
+        disabled: sale.disabled ?? false,
+        source_type: "direct",
+        source_team_id: null,
+        source_team_name: null,
+      });
+    }
+
+    for (const teamId of teamIds) {
+      const [{ data: team }, teamMembers] = await Promise.all([
+        dataProvider.getOne<Team>("teams", { id: teamId }),
+        dataProvider.getTeamMembers(teamId),
+      ]);
+
+      for (const member of teamMembers) {
+        if (participantsBySalesId.has(member.sales_id)) {
+          continue;
+        }
+        participantsBySalesId.set(member.sales_id, {
+          id: `${sprintId}-${member.sales_id}`,
+          sprint_id: sprintId,
+          sales_id: member.sales_id,
+          first_name: member.first_name,
+          last_name: member.last_name,
+          email: member.email,
+          avatar: member.avatar,
+          administrator: member.administrator,
+          disabled: member.disabled,
+          source_type: "team",
+          source_team_id: teamId,
+          source_team_name: team?.name ?? null,
+        });
+      }
+    }
+
+    return Array.from(participantsBySalesId.values()).sort((a, b) =>
+      `${a.last_name} ${a.first_name}`.localeCompare(`${b.last_name} ${b.first_name}`),
+    );
   },
 };
 

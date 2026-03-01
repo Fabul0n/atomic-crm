@@ -30,8 +30,10 @@ import {
   dataProvider as defaultDataProvider,
 } from "../providers/supabase";
 import sales from "../sales";
+import sprints from "../sprints";
 import { ProfilePage } from "../settings/ProfilePage";
 import { SettingsPage } from "../settings/SettingsPage";
+import teams from "../teams";
 import {
   CONFIGURATION_STORE_KEY,
   type ConfigurationContextValue,
@@ -249,6 +251,8 @@ const DesktopAdmin = (props: CoreAdminProps) => {
       <Resource name="deal_notes" />
       <Resource name="tasks" />
       <Resource name="sales" {...sales} />
+      <Resource name="teams" {...teams} />
+      <Resource name="sprints" {...sprints} />
       <Resource name="tags" />
     </Admin>
   );
@@ -304,6 +308,8 @@ const MobileAdmin = (props: CoreAdminProps) => {
         </Resource>
         <Resource name="companies" show={CompanyShow} />
         <Resource name="tasks" list={MobileTasksList} />
+        <Resource name="teams" {...teams} />
+        <Resource name="sprints" {...sprints} />
       </Admin>
     </PersistQueryClientProvider>
   );

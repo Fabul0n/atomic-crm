@@ -14,6 +14,8 @@ import type {
   Sale,
   SalesFormData,
   SignUpData,
+  SprintParticipant,
+  TeamMember,
 } from "../../types";
 import type { ConfigurationContextValue } from "../../root/ConfigurationContext";
 import { getActivityLog } from "../commons/activity";
@@ -226,6 +228,38 @@ const dataProviderWithCustomMethods = {
       previousData: { id: 1 },
     });
     return data.config as ConfigurationContextValue;
+  },
+  async getTeamMembers(teamId: Identifier): Promise<TeamMember[]> {
+    const { data, error } = await supabase
+      .from("team_members")
+      .select("*")
+      .eq("team_id", teamId)
+      .order("last_name", { ascending: true })
+      .order("first_name", { ascending: true });
+
+    if (error) {
+      console.error("getTeamMembers.error", error);
+      throw new Error("Failed to load team members");
+    }
+
+    return (data ?? []) as TeamMember[];
+  },
+  async getSprintParticipants(
+    sprintId: Identifier,
+  ): Promise<SprintParticipant[]> {
+    const { data, error } = await supabase
+      .from("sprint_participants")
+      .select("*")
+      .eq("sprint_id", sprintId)
+      .order("last_name", { ascending: true })
+      .order("first_name", { ascending: true });
+
+    if (error) {
+      console.error("getSprintParticipants.error", error);
+      throw new Error("Failed to load sprint participants");
+    }
+
+    return (data ?? []) as SprintParticipant[];
   },
 } satisfies DataProvider;
 

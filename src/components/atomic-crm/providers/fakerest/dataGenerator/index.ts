@@ -5,13 +5,17 @@ import { generateDealNotes } from "./dealNotes";
 import { generateDeals } from "./deals";
 import { finalize } from "./finalize";
 import { generateSales } from "./sales";
+import { generateSprints } from "./sprints";
 import { generateTags } from "./tags";
+import { generateTeams } from "./teams";
 import { generateTasks } from "./tasks";
 import type { Db } from "./types";
 
 export default (): Db => {
   const db = {} as Db;
   db.sales = generateSales(db);
+  db.teams = generateTeams(db);
+  db.sprints = generateSprints(db);
   db.tags = generateTags(db);
   db.companies = generateCompanies(db);
   db.contacts = generateContacts(db);

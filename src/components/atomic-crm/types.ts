@@ -153,6 +153,55 @@ export type Task = {
   sales_id?: Identifier;
 } & Pick<RaRecord, "id">;
 
+export type Team = {
+  name: string;
+  description?: string;
+  member_ids: Identifier[];
+  sales_id?: Identifier | null;
+  created_at: string;
+} & Pick<RaRecord, "id">;
+
+export type SprintStatus = "planned" | "active" | "completed";
+
+export type Sprint = {
+  name: string;
+  goal?: string;
+  status: SprintStatus;
+  start_date: string;
+  end_date: string;
+  team_ids: Identifier[];
+  member_ids: Identifier[];
+  sales_id?: Identifier | null;
+  created_at: string;
+} & Pick<RaRecord, "id">;
+
+export type TeamMember = {
+  id: string;
+  team_id: Identifier;
+  sales_id: Identifier;
+  first_name: string;
+  last_name: string;
+  email: string;
+  avatar?: RAFile;
+  administrator: boolean;
+  disabled: boolean;
+};
+
+export type SprintParticipant = {
+  id: string;
+  sprint_id: Identifier;
+  sales_id: Identifier;
+  first_name: string;
+  last_name: string;
+  email: string;
+  avatar?: RAFile;
+  administrator: boolean;
+  disabled: boolean;
+  source_team_id?: Identifier | null;
+  source_team_name?: string | null;
+  source_type: "direct" | "team";
+};
+
 export type ActivityCompanyCreated = {
   type: typeof COMPANY_CREATED;
   company_id: Identifier;

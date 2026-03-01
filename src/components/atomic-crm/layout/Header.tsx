@@ -1,4 +1,4 @@
-import { Import, Settings, User, Users } from "lucide-react";
+import { Flag, Import, Settings, User, Users, UsersRound } from "lucide-react";
 import { CanAccess, useUserMenu } from "ra-core";
 import { Link, matchPath, useLocation } from "react-router";
 import { RefreshButton } from "@/components/admin/refresh-button";
@@ -22,6 +22,10 @@ const Header = () => {
     currentPath = "/companies";
   } else if (matchPath("/deals/*", location.pathname)) {
     currentPath = "/deals";
+  } else if (matchPath("/teams/*", location.pathname)) {
+    currentPath = "/teams";
+  } else if (matchPath("/sprints/*", location.pathname)) {
+    currentPath = "/sprints";
   } else {
     currentPath = false;
   }
@@ -70,6 +74,16 @@ const Header = () => {
                     to="/deals"
                     isActive={currentPath === "/deals"}
                   />
+                  <NavigationTab
+                    label="Teams"
+                    to="/teams"
+                    isActive={currentPath === "/teams"}
+                  />
+                  <NavigationTab
+                    label="Sprints"
+                    to="/sprints"
+                    isActive={currentPath === "/sprints"}
+                  />
                 </nav>
               </div>
               <div className="flex items-center">
@@ -80,6 +94,8 @@ const Header = () => {
                   <CanAccess resource="sales" action="list">
                     <UsersMenu />
                   </CanAccess>
+                  <TeamsMenu />
+                  <SprintsMenu />
                   <CanAccess resource="configuration" action="edit">
                     <SettingsMenu />
                   </CanAccess>
@@ -124,6 +140,34 @@ const UsersMenu = () => {
     <DropdownMenuItem asChild onClick={userMenuContext.onClose}>
       <Link to="/sales" className="flex items-center gap-2">
         <Users /> Users
+      </Link>
+    </DropdownMenuItem>
+  );
+};
+
+const TeamsMenu = () => {
+  const userMenuContext = useUserMenu();
+  if (!userMenuContext) {
+    throw new Error("<TeamsMenu> must be used inside <UserMenu>");
+  }
+  return (
+    <DropdownMenuItem asChild onClick={userMenuContext.onClose}>
+      <Link to="/teams" className="flex items-center gap-2">
+        <UsersRound /> Teams
+      </Link>
+    </DropdownMenuItem>
+  );
+};
+
+const SprintsMenu = () => {
+  const userMenuContext = useUserMenu();
+  if (!userMenuContext) {
+    throw new Error("<SprintsMenu> must be used inside <UserMenu>");
+  }
+  return (
+    <DropdownMenuItem asChild onClick={userMenuContext.onClose}>
+      <Link to="/sprints" className="flex items-center gap-2">
+        <Flag /> Sprints
       </Link>
     </DropdownMenuItem>
   );
